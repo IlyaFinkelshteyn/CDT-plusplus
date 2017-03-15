@@ -1,6 +1,6 @@
 /// Causal Dynamical Triangulations in C++ using CGAL
 ///
-/// Copyright (c) 2016 Adam Getchell
+/// Copyright © 2016-2017 Adam Getchell
 ///
 /// Interesting measurements on the simulation
 
@@ -85,7 +85,7 @@ auto VolumePerTimeslice(T&& manifold) -> decltype(manifold) {
   }
 
   // Save values in GeomInfo struct
-  manifold.geometry->timevalues = timevalues;
+  manifold.geometry->timevalues       = timevalues;
   manifold.geometry->spacelike_facets = spacelike_facets;
 
   return manifold;

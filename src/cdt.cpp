@@ -1,6 +1,6 @@
 /// Causal Dynamical Triangulations in C++ using CGAL
 ///
-/// Copyright (c) 2014 Adam Getchell
+/// Copyright © 2014-2017 Adam Getchell
 ///
 /// A program that generates spacetimes
 ///
@@ -22,6 +22,8 @@
 #include <CGAL/Real_timer.h>
 
 // C++ headers
+#include <map>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -33,14 +35,12 @@
 // #include "S3Triangulation.h"
 #include "Metropolis.h"
 #include "Simulation.h"
-#include <map>
-#include <string>
 
 /// Help message parsed by docopt into options
 static const char USAGE[]{
     R"(Causal Dynamical Triangulations in C++ using CGAL.
 
-Copyright (c) 2014-2016 Adam Getchell
+Copyright (c) 2014-2017 Adam Getchell
 
 A program that generates d-dimensional triangulated spacetimes
 with a defined causal structure and evolves them according
@@ -185,13 +185,10 @@ int main(int argc, char* const argv[]) {
 
     // Write results to file
     // Strong exception-safety guarantee
-    // \todo: Fixup so that cell->info() and vertex->info() values
-    //                   are written
+    // \todo: Fixup so that cell->info() and vertex->info() values are written
     write_file(universe, topology, dimensions,
                universe.triangulation->number_of_finite_cells(), timeslices);
-
     return 0;
-
   } catch (std::domain_error& DomainError) {
     std::cerr << DomainError.what() << std::endl;
     std::cerr << "Triangle inequalities violated ... Exiting." << std::endl;

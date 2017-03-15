@@ -1,6 +1,6 @@
 /// Causal Dynamical Triangulations in C++ using CGAL
 ///
-/// Copyright © 2015 Adam Getchell
+/// Copyright © 2015-2017 Adam Getchell
 ///
 /// Performs the Metropolis-Hastings algorithm on the foliated Delaunay
 /// triangulations.
@@ -41,11 +41,10 @@
 
 // C++ headers
 #include <algorithm>
-//#include <tuple>
+#include <atomic>
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include <atomic>
 
 using Gmpzf = CGAL::Gmpzf;
 
@@ -53,7 +52,8 @@ extern const std::uintmax_t PRECISION;
 
 /// @brief Convert enum class to its underlying type
 ///
-/// http://stackoverflow.com/questions/14589417/can-an-enum-class-be-converted-to-the-underlying-type // NOLINT
+/// http://stackoverflow.com/questions/14589417/can-an-enum-class-be-converted-to-the-underlying-type
+/// // NOLINT
 /// @tparam E Enum class type
 /// @param e Enum class
 /// @return Integral type of enum member
@@ -76,14 +76,14 @@ class Metropolis {
   SimplicialManifold universe_;
 
   /// @brief The length of the timelike edges.
-  long double Alpha_;
+  const long double Alpha_;
 
   /// @brief \f$K=\frac{1}{8\pi G_{N}}\f$.
-  long double K_;
+  const long double K_;
 
   /// @brief \f$\lambda=\frac{\Lambda}{8\pi G_{N}}\f$ where \f$\Lambda\f$ is
   /// the cosmological constant.
-  long double Lambda_;
+  const long double Lambda_;
 
   /// @brief The current number of timelike edges
   std::uintmax_t N1_TL_{0};
@@ -95,10 +95,10 @@ class Metropolis {
   std::uintmax_t N3_22_{0};
 
   /// @brief Number of passes of ergodic moves on triangulation.
-  std::uintmax_t passes_{100};
+  const std::uintmax_t passes_{100};
 
   /// @brief How often to print/write output.
-  std::uintmax_t checkpoint_{10};
+  const std::uintmax_t checkpoint_{10};
 
   /// @brief Attempted (2,3), (3,2), (2,6), (6,2), and (4,4) moves.
   Move_tracker attempted_moves_{};
@@ -120,11 +120,11 @@ class Metropolis {
   Metropolis(const long double Alpha, const long double K,
              const long double Lambda, const std::uintmax_t passes,
              const std::uintmax_t checkpoint)
-      : Alpha_(Alpha)
-      , K_(K)
-      , Lambda_(Lambda)
-      , passes_(passes)
-      , checkpoint_(checkpoint) {
+      : Alpha_{Alpha}
+      , K_{K}
+      , Lambda_{Lambda}
+      , passes_{passes}
+      , checkpoint_{checkpoint} {
 #ifndef NDEBUG
     std::cout << __PRETTY_FUNCTION__ << " called." << std::endl;
 #endif
@@ -296,8 +296,8 @@ class Metropolis {
         return static_cast<Gmpzf>(1);
     }
 
-//    auto exponent        = newS3Action - currentS3Action;
-    auto exponent = currentS3Action - newS3Action;
+    //    auto exponent        = newS3Action - currentS3Action;
+    auto exponent        = currentS3Action - newS3Action;
     auto exponent_double = Gmpzf_to_double(exponent);
 
     // if exponent > 0 then e^exponent >=1 so according to Metropolis
@@ -400,6 +400,11 @@ class Metropolis {
         Move_tracker&      attempted_moves) -> SimplicialManifold {
       return make_62_move(std::move(manifold), attempted_moves);
     };
+    auto move_44_lambda = [](
+        SimplicialManifold manifold,
+        Move_tracker&      attempted_moves) -> SimplicialManifold {
+      return make_44_move(std::move(manifold), attempted_moves);
+    };
 
     switch (move) {
       case move_type::TWO_THREE: {
@@ -422,8 +427,11 @@ class Metropolis {
             move_function(move_62_lambda);
         maybe_moved_universe = this_move.operator()(move_function);
       } break;
-      case move_type::FOUR_FOUR:
-        break;
+      case move_type::FOUR_FOUR: {
+        function_ref<SimplicialManifold(SimplicialManifold, Move_tracker&)>
+            move_function(move_44_lambda);
+        maybe_moved_universe = this_move.operator()(move_function);
+      } break;
     }
 
     // Check if move completed successfully and update if so
@@ -519,6 +527,7 @@ class Metropolis {
       make_move(move_type::THREE_TWO);
       make_move(move_type::TWO_SIX);
       make_move(move_type::SIX_TWO);
+      make_move(move_type::FOUR_FOUR);
       print_run();
     } catch (std::logic_error& LogicError) {
       std::cerr << LogicError.what() << std::endl;
@@ -534,7 +543,7 @@ class Metropolis {
       for (std::uintmax_t move_attempt = 0;
            move_attempt < total_simplices_this_pass; ++move_attempt) {
         // Pick a move to attempt
-        auto move_choice = generate_random_unsigned(0, 3);
+        auto move_choice = generate_random_unsigned(0, 4);
 #ifndef NDEBUG
         std::cout << "Move choice = " << move_choice << std::endl;
 #endif

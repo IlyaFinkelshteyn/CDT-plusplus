@@ -37,7 +37,7 @@ find_package(CGAL QUIET COMPONENTS Core )
 set(Boost_DEBUG TRUE)
 find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
 if (NOT Boost_FOUND)
-    message(FATAL_ERROR "Boost >= 1.58.0 required.\n")
+    message(FATAL_ERROR "Boost >= 1.63.0 required.\n")
 endif ()
 
 if ( CGAL_FOUND )

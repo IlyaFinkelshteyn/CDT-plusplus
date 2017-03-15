@@ -32,7 +32,10 @@ class MetropolisTest : public ::testing::Test {
       , N3_13_before{universe_.geometry->one_three.size()}
       , timelike_edges_before{universe_.geometry->N1_TL()}
       , spacelike_edges_before{universe_.geometry->spacelike_edges.size()}
-      , vertices_before{universe_.geometry->vertices.size()} {}
+      , vertices_before{universe_.geometry->vertices.size()}
+      , Alpha{0.6}
+      , K{1.1}
+      , Lambda{0.01} {}
 
   virtual void SetUp() {
     // Print ctor-initialized values
@@ -74,13 +77,13 @@ class MetropolisTest : public ::testing::Test {
   std::uintmax_t vertices_before;
 
   /// \f$\alpha\f$ is the timelike edge length
-  long double Alpha = 1.1;
+  const long double Alpha;
 
   /// \f$k=\frac{1}{8\pi G_{Newton}}\f$
-  long double K = 2.2;
+  const long double K;
 
   /// \f$\lambda=k*\Lambda\f$ where \f$\Lambda\f$ is the Cosmological constant
-  long double Lambda = 3.3;
+  const long double Lambda;
 
   /// Number of passes through the algorithm. Each pass attempts a number of
   /// moves equal to the number of simplices
@@ -164,11 +167,12 @@ TEST_F(MetropolisTest, Operator) {
 
   EXPECT_GE(testrun.SuccessfulSixTwoMoves(), 1) << "No successful (6,2) moves.";
 
-  //  EXPECT_THAT(testrun.SuccessfulFourFourMoves(), Ge(1))
-  //      << "No successful (4,4) moves.";
+  EXPECT_GE(testrun.SuccessfulFourFourMoves(), 1)
+      << "No successful (4,4) moves.";
 
   EXPECT_EQ(testrun.TwoThreeMoves() + testrun.ThreeTwoMoves() +
-                testrun.TwoSixMoves() + testrun.SixTwoMoves(),
+                testrun.TwoSixMoves() + testrun.SixTwoMoves() +
+                testrun.FourFourMoves(),
             testrun.TotalMoves())
       << "Moves don't add up.";
 
@@ -179,8 +183,8 @@ TEST_F(MetropolisTest, Operator) {
                                           2 * testrun.SuccessfulSixTwoMoves())
       << "Timelike edges not correctly counted during moves.";
 
-  EXPECT_EQ(result.triangulation->number_of_finite_edges(), result
-      .geometry->N1_TL() + result.geometry->spacelike_edges.size())
+  EXPECT_EQ(result.triangulation->number_of_finite_edges(),
+            result.geometry->N1_TL() + result.geometry->spacelike_edges.size())
       << "Spacelike + Timelike edges don't add up to number_of_finite_edges.";
 
   EXPECT_EQ(result.geometry->N3_22(), N3_22_before +
@@ -218,11 +222,16 @@ TEST_F(MetropolisTest, CalculateA1) {
   std::cout << "There were " << testrun.SixTwoMoves()
             << " attempted (6,2) moves and " << testrun.SuccessfulSixTwoMoves()
             << " successful (6,2) moves." << std::endl;
+  std::cout << "There were " << testrun.FourFourMoves()
+            << " attempted (4,4) moves and "
+            << testrun.SuccessfulFourFourMoves() << " successful (4,4) moves."
+            << std::endl;
 
   auto A1_23 = testrun.CalculateA1(move_type::TWO_THREE);
   auto A1_32 = testrun.CalculateA1(move_type::THREE_TWO);
   auto A1_26 = testrun.CalculateA1(move_type::TWO_SIX);
   auto A1_62 = testrun.CalculateA1(move_type::SIX_TWO);
+  auto A1_44 = testrun.CalculateA1(move_type::FOUR_FOUR);
 
   std::cout << "A1 for (2,3) move is: " << A1_23 << std::endl;
   EXPECT_TRUE(IsProbabilityRange(A1_23)) << "A1_23 not calculated correctly.";
@@ -236,8 +245,12 @@ TEST_F(MetropolisTest, CalculateA1) {
   std::cout << "A1 for (6,2) move is: " << A1_62 << std::endl;
   EXPECT_TRUE(IsProbabilityRange(A1_62)) << "A1_62 not calculated correctly.";
 
+  std::cout << "A1 for (4,4) move is: " << A1_44 << std::endl;
+  EXPECT_TRUE(IsProbabilityRange(A1_44)) << "A1_62 not calculated correctly.";
+
   EXPECT_EQ(testrun.TwoThreeMoves() + testrun.ThreeTwoMoves() +
-                testrun.TwoSixMoves() + testrun.SixTwoMoves(),
+                testrun.TwoSixMoves() + testrun.SixTwoMoves() +
+                testrun.FourFourMoves(),
             testrun.TotalMoves())
       << "Moves don't add up.";
 }
@@ -260,6 +273,7 @@ TEST_F(MetropolisTest, CalculateA2) {
   auto A2_32 = testrun.CalculateA2(move_type::THREE_TWO);
   auto A2_26 = testrun.CalculateA2(move_type::TWO_SIX);
   auto A2_62 = testrun.CalculateA2(move_type::SIX_TWO);
+  auto A2_44 = testrun.CalculateA2(move_type::FOUR_FOUR);
 
   std::cout << "A2 for (2,3) move is: " << A2_23 << std::endl;
   EXPECT_TRUE(IsProbabilityRange(A2_23)) << "A2_23 not calculated correctly.";
@@ -273,8 +287,12 @@ TEST_F(MetropolisTest, CalculateA2) {
   std::cout << "A2 for (6,2) move is: " << A2_62 << std::endl;
   EXPECT_TRUE(IsProbabilityRange(A2_62)) << "A2_62 not calculated correctly.";
 
+  std::cout << "A2 for (4,4) move is: " << A2_44 << std::endl;
+  EXPECT_TRUE(IsProbabilityRange(A2_44)) << "A2_44 not calculated correctly.";
+
   EXPECT_EQ(testrun.TwoThreeMoves() + testrun.ThreeTwoMoves() +
-                testrun.TwoSixMoves() + testrun.SixTwoMoves(),
+                testrun.TwoSixMoves() + testrun.SixTwoMoves() +
+                testrun.FourFourMoves(),
             testrun.TotalMoves())
       << "Moves don't add up.";
 }

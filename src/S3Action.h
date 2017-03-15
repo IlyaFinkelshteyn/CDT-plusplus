@@ -1,6 +1,6 @@
 /// Causal Dynamical Triangulations in C++ using CGAL
 ///
-/// Copyright (c) 2014-2016 Adam Getchell
+/// Copyright © 2014-2017 Adam Getchell
 ///
 /// Calculates the S3 Bulk (and later, boundary) actions.
 /// Uses the GNU MPFR library for arbitrary precision arithmetic on
@@ -33,7 +33,7 @@
 using Gmpzf = CGAL::Gmpzf;
 // using MP_Float = CGAL::MP_Float;
 /// Sets the precision for <a href="http://www.mpfr.org">MPFR</a>.
-static constexpr std::uintmax_t PRECISION = 256;
+static constexpr std::uintmax_t PRECISION{256};
 
 /// @brief Calculates S3 bulk action for \f$\alpha\f$=-1.
 ///

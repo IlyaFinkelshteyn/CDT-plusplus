@@ -1,6 +1,6 @@
 /// Causal Dynamical Triangulations in C++ using CGAL
 ///
-/// Copyright © 2016 Adam Getchell
+/// Copyright © 2016-2017 Adam Getchell
 ///
 /// Full run-through with default options used to calculate
 /// optimal values for thermalization, etc. A simpler version
@@ -22,15 +22,13 @@
 
 int main() {
   std::cout << "cdt-opt started at " << currentDateTime() << std::endl;
-  constexpr uintmax_t   simplices  = 64000;
-  constexpr uintmax_t   timeslices = 16;
-  /// @brief Constants in units of \f$c=G=\hbar=1 \alpha\approx 0.0397887\f$
-  constexpr long double alpha      = 1.1;
-  constexpr long double k          = 2.2;
-  /// @brief \f$\Lambda=2.036\times 10^{-35} s^{-2}\approx 0\f$
-  constexpr long double lambda     = 3.3;
-  constexpr uintmax_t   passes     = 100;
-  constexpr uintmax_t   checkpoint = 10;
+  constexpr auto simplices  = static_cast<uintmax_t>(64000);
+  constexpr auto timeslices = static_cast<uintmax_t>(16);
+  constexpr auto alpha      = static_cast<long double>(0.6);
+  constexpr auto k          = static_cast<long double>(1.1);
+  constexpr auto lambda     = static_cast<long double>(0.01);
+  constexpr auto passes     = static_cast<std::uintmax_t>(100);
+  constexpr auto checkpoint = static_cast<std::uintmax_t>(10);
 
   // Initialize simulation
   Simulation my_simulation;
@@ -58,6 +56,5 @@ int main() {
   if (max_timevalue < timeslices)
     std::cout << "You wanted " << timeslices << " timeslices, but only got "
               << max_timevalue << " ." << std::endl;
-
   return 0;
 }

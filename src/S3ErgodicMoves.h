@@ -482,11 +482,11 @@ template <typename T1, typename T2>
 auto make_44_move(T1&& universe, T2&& attempted_moves) -> decltype(universe) {
   std::vector<Edge_handle> movable_spacelike_edges{
       universe.geometry->spacelike_edges};
-
-  auto not_moved = true;  // should be true
-  while ((not_moved) && (movable_spacelike_edges.size() > 0)) {
-    // do something
-  }
+//   Perform move here
+    auto not_moved = true;  // should be true
+    while ((not_moved) && (movable_spacelike_edges.size() > 0)) {
+      // do something
+    }
   if (movable_spacelike_edges.size() == 0) {
     throw std::domain_error("No (4,4) move is possible.");
   }

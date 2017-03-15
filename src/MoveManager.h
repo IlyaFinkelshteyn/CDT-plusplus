@@ -113,7 +113,12 @@ class MoveManager {
             check[5] == universe_.get().geometry->vertices.size() + 1);
       }
       case move_type::FOUR_FOUR: {
-        return false;
+        return (check[0] == universe_.get().geometry->three_one.size() &&
+                check[1] == universe_.get().geometry->N3_22() &&
+                check[2] == universe_.get().geometry->one_three.size() &&
+                check[3] == universe_.get().geometry->timelike_edges.size() &&
+                check[4] == universe_.get().geometry->spacelike_edges.size() &&
+                check[5] == universe_.get().geometry->vertices.size());
       }
     }
   }

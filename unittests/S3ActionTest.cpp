@@ -1,6 +1,6 @@
 /// Causal Dynamical Triangulations in C++ using CGAL
 ///
-/// Copyright (c) 2014-2016 Adam Getchell
+/// Copyright © 2014-2017 Adam Getchell
 ///
 /// Ensures that the S3 bulk action calculations are correct, and give
 /// similar results for similar values.
@@ -32,7 +32,9 @@ class S3ActionTest : public ::testing::Test {
       , N3_13_before{universe_.geometry->one_three.size()}
       , timelike_edges_before{universe_.geometry->timelike_edges.size()}
       , spacelike_edges_before{universe_.geometry->spacelike_edges.size()}
-      , vertices_before{universe_.geometry->vertices.size()} {}
+      , vertices_before{universe_.geometry->vertices.size()}
+      , K{1.1}
+      , Lambda{0.01} {}
 
   virtual void SetUp() {
     // Print ctor-initialized values
@@ -76,10 +78,10 @@ class S3ActionTest : public ::testing::Test {
   std::uintmax_t vertices_before;
 
   /// @brief K value
-  static constexpr long double K = static_cast<long double>(1.1);
+  const long double K;
 
   /// @brief Lambda value
-  static constexpr auto Lambda = static_cast<long double>(2.2);
+  const long double Lambda;
 };
 
 TEST_F(S3ActionTest, GetN3Values) {
@@ -103,7 +105,7 @@ TEST_F(S3ActionTest, CalculateAlphaMinus1BulkAction) {
             << std::endl;
 
   // Magic values from lots of tests
-  EXPECT_TRUE(IsBetween<Gmpzf>(Bulk_action, 10000, 13000))
+  EXPECT_TRUE(IsBetween<Gmpzf>(Bulk_action, 3000, 4000))
       << "S3_bulk_action_minus_one() out of expected range";
 }
 
@@ -115,12 +117,12 @@ TEST_F(S3ActionTest, CalculateAlpha1BulkAction) {
             << std::endl;
 
   // Magic values from lots of tests
-  EXPECT_TRUE(IsBetween<Gmpzf>(Bulk_action, -10000, -9000))
+  EXPECT_TRUE(IsBetween<Gmpzf>(Bulk_action, 2800, 4000))
       << "S3_bulk_action_alpha_one() out of expected range.";
 }
 
 TEST_F(S3ActionTest, CalculateGeneralBulkAction) {
-  constexpr auto Alpha = static_cast<long double>(0.5);
+  constexpr long double Alpha{0.6};
   std::cout << "(Long double) Alpha = " << Alpha << std::endl;
   auto Bulk_action =
       S3_bulk_action(timelike_edges_before, universe_.geometry->N3_31(),
@@ -128,13 +130,13 @@ TEST_F(S3ActionTest, CalculateGeneralBulkAction) {
   std::cout << "S3_bulk_action() result is " << Bulk_action << std::endl;
 
   // Magic value from lots of tests
-  EXPECT_TRUE(IsBetween<Gmpzf>(Bulk_action, -7000, -6000))
+  EXPECT_TRUE(IsBetween<Gmpzf>(Bulk_action, 3000, 4000))
       << "S3_bulk_action() out of expected range.";
 }
 
 TEST_F(S3ActionTest, GeneralBulkActionEquivalentToAlpha1BulkAction) {
-  constexpr auto tolerance = static_cast<long double>(0.05);
-  constexpr auto Alpha     = static_cast<long double>(1.0);
+  constexpr long double tolerance{0.005};
+  constexpr long double Alpha{1.0};
   std::cout << "(Long double) Alpha = " << Alpha << std::endl;
 
   auto Bulk_action =
@@ -146,14 +148,19 @@ TEST_F(S3ActionTest, GeneralBulkActionEquivalentToAlpha1BulkAction) {
   std::cout << "S3_bulk_action() result is " << Bulk_action << std::endl;
   std::cout << "S3_bulk_action_alpha_one() result is " << Bulk_action_one
             << std::endl;
-  std::cout << (1.0 - tolerance) << std::endl;
-  // BUG: For some reason this produces 0
-  const auto min = abs(Bulk_action_one * (1.0 - tolerance));
-  std::cout << "(Gmpzf) min = " << min << std::endl;
-  std::cout << (1.0 + tolerance) << std::endl;
-  const auto max = abs(Bulk_action_one * (1.0 + tolerance));
-  std::cout << "(Gmpzf) max = " << max << std::endl;
 
-  ASSERT_TRUE(IsBetween<Gmpzf>(abs(Bulk_action), min, max))
+  Gmpzf minMultiplier(static_cast<double>(1 - tolerance));
+  auto  min = minMultiplier * Bulk_action;
+  Gmpzf maxMultiplier(static_cast<double>(1 + tolerance));
+  auto  max = maxMultiplier * Bulk_action;
+
+#ifndef NDEBUG
+  std::cout << minMultiplier << std::endl;
+  std::cout << "(Gmpzf) min = " << min << std::endl;
+  std::cout << maxMultiplier << std::endl;
+  std::cout << "(Gmpzf) max = " << max << std::endl;
+#endif
+
+  ASSERT_TRUE(IsBetween<Gmpzf>(Bulk_action_one, min, max))
       << "General Bulk action does not match Bulk action for alpha=1.";
 }
