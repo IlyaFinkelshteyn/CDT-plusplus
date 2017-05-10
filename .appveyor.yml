@@ -52,7 +52,8 @@ install:
   - set PATH=C:\projects\dev\releases-CGAL-4.9.1;%PATH%
   - cd C:\projects\dev\releases-CGAL-4.9.1
   - dir # Debugging  
-  - mkdir CMakeFiles\CMakeTmp
+  - mkdir C:\projects\dev\releases-CGAL-4.9.1\CMakeFiles\CMakeTmp
+  - powershell test-path C:/projects/dev/releases-CGAL-4.9.1/CMakeFiles/CMakeTmp
   - cmake -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_BUILD_TYPE=Release -DBoost_USE_STATIC_LIBS=ON -DWITH_Eigen3=ON -DBOOST_ROOT=${BOOST_DIR} -G Ninja .
   - cmake --build .
 
