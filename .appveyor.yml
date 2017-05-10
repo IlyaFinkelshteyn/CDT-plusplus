@@ -1,7 +1,7 @@
 skip_branch_with_pr: true
 
-#image:
-#  - Visual Studio 2017
+image:
+  - Visual Studio 2017
 
 build:
   verbosity: detailed
@@ -51,8 +51,7 @@ install:
   - 7z x cgal.zip -oC:\projects\dev
   - set PATH=C:\projects\dev\releases-CGAL-4.9.1;%PATH%
   - cd C:\projects\dev\releases-CGAL-4.9.1
-  - dir # Debugging  
-  - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
+  - dir # Debugging    
   - cmake -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_BUILD_TYPE=Release -DBoost_USE_STATIC_LIBS=ON -DWITH_Eigen3=ON -DBOOST_ROOT=${BOOST_DIR} -G Ninja .
   - cmake --build .
 
@@ -76,3 +75,6 @@ notifications:
     subject: 'Build {{status}}'
     message: "{{message}}, {{commitId}}, ..."
     on_build_status_changed: true
+
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
