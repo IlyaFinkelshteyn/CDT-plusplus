@@ -1,7 +1,7 @@
 skip_branch_with_pr: true
 
-image:
-  - Visual Studio 2017
+#image:
+#  - Visual Studio 2017
 
 build:
   verbosity: detailed
@@ -52,8 +52,7 @@ install:
   - set PATH=C:\projects\dev\releases-CGAL-4.9.1;%PATH%
   - cd C:\projects\dev\releases-CGAL-4.9.1
   - dir # Debugging  
-  - mkdir C:\projects\dev\releases-CGAL-4.9.1\CMakeFiles\CMakeTmp
-  - powershell test-path C:/projects/dev/releases-CGAL-4.9.1/CMakeFiles/CMakeTmp
+  - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
   - cmake -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_BUILD_TYPE=Release -DBoost_USE_STATIC_LIBS=ON -DWITH_Eigen3=ON -DBOOST_ROOT=${BOOST_DIR} -G Ninja .
   - cmake --build .
 
